@@ -32,9 +32,10 @@ class Material
     }
 
     public function addTagToMaterial($tag_id, $material_id){
+        $tagToMaterial = $this->db->getTagToMaterial($tag_id, $material_id);
         $tag = $this->db->getTag($tag_id);
         $material = $this->db->getMaterial($material_id);
-        if($tag && $material){
+        if(!$tagToMaterial && $tag && $material){
             return $this->db->addTagToMaterial($tag_id, $material_id);
         }
     }

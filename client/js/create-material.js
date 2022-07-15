@@ -13,7 +13,7 @@ const description = document.getElementById('floatingDescription');
 const addForm = document.getElementById('addForm');
 
 async function getTypes() {
-    const answer = await fetch('http://library/api/?method=getTypes');
+    const answer = await fetch('http://library/API/?method=getTypes');
     const result = await answer.json();
     const types = result.data;
     for (let i = 0; i < types.length; i++) {
@@ -21,6 +21,18 @@ async function getTypes() {
         option.setAttribute('value', types[i].id);
         option.innerHTML = types[i].name;
         type.appendChild(option);
+    }
+}
+
+async function getCategories() {
+    const answer = await fetch('http://library/API/?method=getCategories');
+    const result = await answer.json();
+    const categories = result.data;
+    for (let i = 0; i < categories.length; i++) {
+        let option = document.createElement('option');
+        option.setAttribute('value', categories[i].id);
+        option.innerHTML = categories[i].name;
+        category.appendChild(option);
     }
 }
 
@@ -48,26 +60,48 @@ async function fillPage() {
 
 getTypes();
 
+getCategories();
+
 fillPage();
 
 addForm.addEventListener('submit', updateMaterial);
 function updateMaterial(e) {
     e.preventDefault();
+    if(!validateForm()) return;
     if (currentMaterial != null) {
-        fetch(`http://library/api/?method=updateMaterial&
+        fetch(`http://library/API/?method=updateMaterial&
             id=${currentMaterial}&
             type=${type.value}&
             category=${category.value}&
             title=${title.value}&
             author=${author.value}&
             description=${description.value}`);
+            window.location.href='list-materials.html';
         return;
     }
-    fetch(`http://library/api/?method=addMaterial&
+    fetch(`http://library/API/?method=addMaterial&
         type=${type.value}&
         category=${category.value}&
         title=${title.value}&
         author=${author.value}&
         description=${description.value}`);
+    window.location.href='list-materials.html';
+}
+
+function validateForm(){
+    let status = true;
+    if(type.value == 'null'){
+        type.classList.add("is-invalid");
+        status = false;
+    }
+    if(category.value == 'null'){
+        category.classList.add("is-invalid");
+        status = false;
+    }
+    if(title.value.trim() == ''){
+        title.classList.add("is-invalid");
+        status = false;
+    }
+    return status;
 }
 

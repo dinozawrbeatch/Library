@@ -11,6 +11,7 @@ const linksList = document.getElementById("linksList");
 const signature = document.getElementById("floatingModalSignature");
 const inputLink = document.getElementById("floatingModalLink");
 const addLinkButton = document.getElementById("addLinkButton");
+const modalWindow = document.getElementById("exampleModalToggle");
 const openModalWindow = document.getElementById("openModalWindow");
 let clickedLinkId = null;
 
@@ -122,7 +123,7 @@ async function getMaterialLinks() {
   const deleteLink = document.getElementsByClassName("deleteLink");
   for (let i = 0; i < deleteLink.length; i++) {
     deleteLink[i].addEventListener("click", () => {
-      const answer = confirm("Вы точно хотите удалить тег?");
+      const answer = confirm("Вы точно хотите удалить ссылку?");
       if (answer) deleteLinkMaterial(links[i].id);
     });
   }
@@ -166,7 +167,11 @@ async function addLinkToMaterial() {
       link=${inputLink.value}`
   );
   const result = await answer.json();
-  if (result.data) getMaterialLinks();
+  if (result.data) {
+    getMaterialLinks();
+    return true;
+  } 
+  return false;
 }
 
 async function deleteLinkMaterial(id) {
@@ -179,8 +184,18 @@ addTagButton.addEventListener("click", () => {
 });
 
 addLinkButton.addEventListener("click", () => {
-  if (isButtonAddLink) addLinkToMaterial();
-  else editLink();
+  if(inputLink.value.trim() == ''){
+    inputLink.classList.add("is-invalid");
+    return;
+  }
+  if(isButtonAddLink){
+    const isOk = addLinkToMaterial();
+    if(isOk) $('#exampleModalToggle').modal('hide');
+  } 
+  else {
+    editLink();
+    $('#exampleModalToggle').modal('hide');
+  };
 });
 
 openModalWindow.addEventListener("click", () => {

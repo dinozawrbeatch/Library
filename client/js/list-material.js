@@ -1,21 +1,20 @@
 let tagLink = null;
 
-if (localStorage.getItem('currentTag')) {
-    tagLink = localStorage.getItem('currentTag');
-    localStorage.removeItem('currentTag');
+if (localStorage.getItem("currentTag")) {
+  tagLink = localStorage.getItem("currentTag");
+  localStorage.removeItem("currentTag");
 }
 
-const buttonFind = document.getElementById('button-addon1');
-const buttonDelete = document.getElementById('buttonDelete')
-const table = document.getElementById('tableId');
-const input = document.getElementById('findInput');
+const buttonFind = document.getElementById("button-addon1");
+const buttonDelete = document.getElementById("buttonDelete");
+const table = document.getElementById("tableId");
+const input = document.getElementById("findInput");
 let arr = [];
 
-
-function pullMaterials(){
-    table.innerHTML = ``;
-    for(let i = 0; i < arr.length; i++){
-        table.innerHTML += `
+function pullMaterials() {
+  table.innerHTML = ``;
+  for (let i = 0; i < arr.length; i++) {
+    table.innerHTML += `
         <tr>
                         <td><a href="view-material.html" class="titleHref">${arr[i].title}</a></td>
                         <td>${arr[i].author}</td>
@@ -39,63 +38,71 @@ function pullMaterials(){
                         </td>
                     </tr>
         `;
-    }
-    const deleteButtons = document.getElementsByClassName('deleteMaterial');
-    for(let i = 0; i < deleteButtons.length; i++){
-        deleteButtons[i].addEventListener('click', () => {
-            const answer = confirm('Вы точно хотите удалить материал?');
-            if(answer)
-                deleteMaterial(arr[i].id);
-        });
-    }
+  }
+  const deleteButtons = document.getElementsByClassName("deleteMaterial");
+  for (let i = 0; i < deleteButtons.length; i++) {
+    deleteButtons[i].addEventListener("click", () => {
+      const answer = confirm("Вы точно хотите удалить материал?");
+      if (answer) deleteMaterial(arr[i].id);
+    });
+  }
 
-    const editButtons = document.getElementsByClassName('editMaterial');
-    for(let i = 0; i < editButtons.length; i++){
-        editButtons[i].addEventListener('click', () => {
-            localStorage.setItem('currentMaterial', arr[i].id);
-        });
-    }
+  const editButtons = document.getElementsByClassName("editMaterial");
+  for (let i = 0; i < editButtons.length; i++) {
+    editButtons[i].addEventListener("click", () => {
+      localStorage.setItem("currentMaterial", arr[i].id);
+    });
+  }
 
-    const titleHref = document.getElementsByClassName('titleHref');
-    for(let i = 0; i < titleHref.length; i++){
-        titleHref[i].addEventListener('click', () => {
-            localStorage.setItem('currentMaterial', arr[i].id);
-        });
-    }
+  const titleHref = document.getElementsByClassName("titleHref");
+  for (let i = 0; i < titleHref.length; i++) {
+    titleHref[i].addEventListener("click", () => {
+      localStorage.setItem("currentMaterial", arr[i].id);
+    });
+  }
 }
 
-async function getAllMaterials(){
-    if(tagLink != null){
-        const answer = await fetch(`http://library/api/?method=getMaterialsByTag&tag_id=${tagLink}`);
-        const result = await answer.json();
-        arr = result.data;
-        pullMaterials();
-        return;
-    }
-    const answer = await fetch('http://library/api/?method=getAllMaterials');
+async function getAllMaterials() {
+  if (tagLink != null) {
+    const answer = await fetch(
+      `http://library/api/?method=getMaterialsByTag&tag_id=${tagLink}`
+    );
     const result = await answer.json();
     arr = result.data;
     pullMaterials();
+    return;
+  }
+  const answer = await fetch("http://library/api/?method=getAllMaterials");
+  const result = await answer.json();
+  arr = result.data;
+  pullMaterials();
 }
 
-buttonFind.addEventListener('click', ()=>{
-    findMaterial(input.value);
+buttonFind.addEventListener("click", () => {
+  findMaterial(input.value);
 });
 
-async function findMaterial(str){
-    if(str.length == 0) return;
-    const answer = await fetch(`http://library/api/?method=findMaterial&str=${str}`);
-    const result = await answer.json();
-    arr = result.data;
-    pullMaterials();
+async function findMaterial(str) {
+    if (str.length == 0) {
+        getAllMaterials();
+        return;
+      }
+
+  const answer = await fetch(
+    `http://library/api/?method=findMaterial&str=${str}`
+  );
+  const result = await answer.json();
+  arr = result.data;
+  pullMaterials();
 }
 
-async function deleteMaterial(id){
-    const answer = await fetch(`http://library/api/?method=deleteMaterial&id=${id}`);
-    const result = await answer.json();
-    arr = result.data;
-    getAllMaterials();
+async function deleteMaterial(id) {
+  const answer = await fetch(
+    `http://library/api/?method=deleteMaterial&id=${id}`
+  );
+  const result = await answer.json();
+  arr = result.data;
+  getAllMaterials();
 }
 
 getAllMaterials();
-

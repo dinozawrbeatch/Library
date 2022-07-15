@@ -62,6 +62,14 @@ class DB
         return $this->db->query($query)
             ->fetchObject();
     }
+    public function getTagToMaterial($tag_id, $material_id){
+        $query = "SELECT * FROM tags_to_materials 
+                WHERE tag_id = $tag_id
+                AND material_id = $material_id";
+        return $this->db->query($query)
+            ->fetchObject();
+    }
+    
     public function getAllMaterials(){
         $query = "SELECT materials.id,
                 materials.title, 
@@ -88,15 +96,35 @@ class DB
 
     public function findMaterial($str){
         $query = "SELECT materials.id,
-                materials.title, 
-                materials.author, 
-                categories.name AS category, 
-                materials.description, 
-                types.name AS type
-                FROM materials, types, categories
-                WHERE title LIKE '$str%'
-                AND  types.id = materials.id_type
-                AND categories.id = materials.id_category";
+        materials.title,
+        materials.author,
+        materials.description,
+        types.name      AS type,
+        categories.name AS category
+ FROM materials
+          LEFT JOIN categories
+                    ON materials.id_category = categories.id
+          LEFT JOIN types
+                    ON materials.id_type = types.id
+          LEFT JOIN tags_to_materials
+                    ON materials.id = tags_to_materials.material_id
+          LEFT JOIN tags
+                    ON tags.id = tags_to_materials.tag_id
+ WHERE materials.id IN (
+     SELECT materials.id
+     FROM materials
+              LEFT JOIN categories
+                        ON materials.id_category = categories.id
+              LEFT JOIN types
+                        ON materials.id_type = types.id
+              LEFT JOIN tags_to_materials
+                        ON materials.id = tags_to_materials.material_id
+              LEFT JOIN tags
+                        ON tags.id = tags_to_materials.tag_id
+     WHERE materials.author LIKE '$str%'
+        OR materials.title LIKE '$str%'
+        OR categories.name LIKE '$str%'
+        OR tags.name LIKE '$str%' group by materials.id)";
         return $this->db->query($query)
             ->fetchAll(PDO::FETCH_ASSOC);
     }
